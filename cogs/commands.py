@@ -187,7 +187,47 @@ class Commands(commands.Cog):
                 await message.delete()
                 break
 
-   
-        
+    #BOT-INFO
+    @cog_ext.cog_slash(
+        name="bot-info",
+        description="See detailed information about me... wait may I ask why you need this info?",
+        guild_ids=guild_ids
+    )
+    async def info(self, context):
+        await log.cog_command(self, context)
+
+        before = time.monotonic()
+        before_ws = int(round(self.client.latency * 1000, 1))
+        ping = (time.monotonic() - before) * 1000
+        ram_usage = self.client.process.memory_full_info().rss / 1024**2
+        current_time = time.time()
+        difference = int(round(current_time - self.client.start_time))
+        uptime = str(timedelta(seconds=difference))
+        users = len(self.client.users)
+
+        info = discord.Embed(
+        title="Bot Info",
+        description="Everything about me!",
+        colour=0x9b59b6
+        )
+        info.set_thumbnail(
+            url=context.bot.user.avatar_url
+        )
+        fields = [("Developer", "Timmy", True), 
+                ("Users", f"{users}", True),
+                ("Latency", f"{before_ws}ms", True),
+                ("RAM Usage", f"{ram_usage:.2f} MB", True), 
+                ("Uptime", uptime, True), 
+                ("Version", self.client.version, True)]
+
+        info.set_footer(
+            text="Latest changes: Fix levelling."
+        )
+
+        for name, value, inline in fields:
+            info.add_field(name=name, value=value, inline=inline)
+
+        await context.send(embed=info)
+
 def setup(client):
     client.add_cog(Commands(client))
