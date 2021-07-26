@@ -50,9 +50,9 @@ class Events(commands.Cog):
     #ON_MEMBER_JOIN > ROLE_ADD
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if member.guild.id == devthings_guild_id:
+        if member.guild.id == guild_id:
             
-            role = member.guild.get_role(869300375591743551)
+            role = member.guild.get_role(869338493451632682)
             await member.add_roles(role)
 
         else:
@@ -72,6 +72,26 @@ class Events(commands.Cog):
                 message
             )
             await db.commit()
+
+    #VERIFICATION_AND_WHITELIST
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        message_id = 869339105534816267
+
+        if payload.message_id == message_id:
+            member = payload.member
+            guild = member.guild
+            emoji = payload.emoji.name
+
+            await member.send("Success! You now have access to the whole server, welcome! One final step, please type in your minecraft ign to get whitelisted:")
+
+            #remove @unverified role
+            role = member.guild.get_role(869338493451632682)
+            await member.remove_roles(role)
+
+            #add @merchant role
+            role = member.guild.get_role(869300375591743551)
+            await member.add_roles(role)
 
 def setup(client):
     client.add_cog(Events(client))
