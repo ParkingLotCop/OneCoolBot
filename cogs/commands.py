@@ -272,5 +272,37 @@ class Commands(commands.Cog):
         )
         await context.send(embed=embed)
 
+
+    #SERVER-INFO
+    @cog_ext.cog_slash(
+        name="server-info",
+        description="Gets server info and other handy information.",
+        guild_ids=guild_ids
+    )
+    async def serverinfo(self, context: SlashContext):
+        await log.slash_command(self, context)
+
+        embed = discord.Embed(
+        title="Server Info",
+        colour=0x9b59b6
+        )
+        embed.set_thumbnail(
+            url=context.guild.icon_url
+        )
+
+        fields = [("Owner", context.guild.owner, False),
+                  ("Created At", context.guild.created_at.strftime("%d/%m/%Y %H:%M:%S"), True),
+                  ("Region", context.guild.region, False),
+                  ("Members", len(context.guild.members), False)]
+
+        for name, value, inline in fields:
+                embed.add_field(name=name, value=value, inline=inline)
+
+        embed.set_footer(
+            text=f"ID: {context.guild.id}"
+        )
+
+        await context.send(embed=embed)
+
 def setup(client):
     client.add_cog(Commands(client))
