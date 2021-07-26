@@ -23,8 +23,7 @@ CREATE TABLE IF NOT EXISTS guildsettings(
 
 CREATE TABLE IF NOT EXISTS usersettings(
     UserID integer PRIMARY KEY,
-    ColorTheme text DEFAULT "0x71368a",
-    RankBackground text DEFAULT "None"
+    ColorTheme text DEFAULT "0x7289da"
 );
 
 CREATE TABLE IF NOT EXISTS userinventory(
