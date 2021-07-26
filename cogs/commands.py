@@ -349,7 +349,6 @@ class Commands(commands.Cog):
                 with Image.open(rank_background, "r") as f:
                     background = f.convert("RGB")
                 
-    
             async with aiohttp.ClientSession() as session:
                 async with session.get(str(target.avatar_url)) as response:
                     image = await response.read()
