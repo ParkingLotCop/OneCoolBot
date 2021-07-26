@@ -27,50 +27,13 @@ import aiohttp
 from typing import Optional
 from io import BytesIO
 
-guild_ids = [791160100567384094]
+guild_ids = [869061881250324531]
 
 #loading bot config
 with open("config.json") as file:
     config = json.load(file)
 
 #LEADERBOARD GENERATOR
-class Menu(ListPageSource):
-    def __init__(self, context, data):
-        self.context = context
-
-        super().__init__(data, per_page=10)
-
-    async def write_page(self, menu, offset, fields=[]):
-        offset = (menu.current_page * self.per_page) + 1
-        len_data = len(self.entries)
-
-        embed = Embed(
-            title="Leaderboard",
-            colour=await colours.colour(self.context),
-        )
-
-        embed.set_thumbnail(url=self.context.guild.icon_url)
-        embed.set_footer(
-            text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} members."
-        )
-
-        for name, value in fields:
-            embed.add_field(name=name, value=value, inline=False)
-
-        return embed
-
-    async def format_page(self, menu, entries):
-        offset = (menu.current_page * self.per_page) + 1
-        fields = []
-        table = "\n".join(
-            f"{idx+offset}. **{self.context.guild.get_member(entry[0]).name}** ~ `{entry[1]}`"
-            for idx, entry in enumerate(entries)
-        )
-
-        fields.append(("Top members:", table))
-
-        return await self.write_page(menu, offset, fields)
-
 class Commands(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -92,11 +55,9 @@ class Commands(commands.Cog):
             colour=await colours.colour(context)
         )
         fields = [("`General`", "**Basic commands for day-to-day tasks.", False),
-                ("`Economy`", "A global market and trading system, complete with its own currency!", False),
-                ("`Games`", "Play with friends, compete with strangers, and make some extra coins while having fun!", False),
+                ("`Economy`", "Collect emeralds and set up shops integrated with minecraft!", False),
                 ("`Music`", "Listen to low-latency music streams for studying and hanging out with friends in voice-chat!", False),
-                ("`Moderation`", "Make sure your server is always under control, with an advanced toolset for your moderators, and auto-moderation for the tech-savvy!", False),
-                ("`Settings`", "Configure OneCoolBot with ease right in discord, with a dashboard coming later.", False)]
+                ("`Moderation`", "Make sure your server is always under control, with an advanced toolset for your moderators, and auto-moderation for the tech-savvy!", False)]
 
         page_1.set_footer(
             text="To scroll through pages, react to the arrows below."
@@ -110,13 +71,13 @@ class Commands(commands.Cog):
             description="The overview of the general commands.", 
             colour=await colours.colour(context)
         )
-        fields = [("`help`", "Your looking at this command.\n**subcommands:** `aliases`", False),
-                ("`info`", "Displays bot status, ping, and other miscellaneous content.\n**subcommands:** `aliases` `help`", False),
-                ("`serverinfo`", "Displays server info, such as user count.\n**subcommands:** `aliases` `help`", False),
-                ("`userinfo`", "Displays user info, discord stats, and the like.\n**subcommands:** `aliases` `help`", False)]
+        fields = [("/`info`", "Displays bot status, ping, and other miscellaneous content.", False),
+                  ("/`serverinfo`", "Displays server info, such as user count.", False),
+                  ("/`userinfo`", "Displays user info, discord stats, and the like.", False),
+                  ("/`minecraft-server-info`", "Displays minecrft server info, such as uptime and users playing.\nNot added yet! Working on it.", False),]
 
         page_2.set_footer(
-            text=f"Handy tip! To see what a command can do, use the `help` subcommand."
+            text=f"Handy tip! To see what a command can do, try it and see!"
         )
 
         for name, value, inline in fields:
@@ -124,39 +85,29 @@ class Commands(commands.Cog):
 
         page_3 = discord.Embed(
             title="Economy", 
-            description="A global market and trading system, complete with its own currency!", 
+            description="Collect emeralds and set up shops integrated with minecraft!", 
             colour=await colours.colour(context)
         )
-        fields = [("Under Construction!", "Economy is currently being polished and completely refactored. Should be complete in a weeek or two.", False)]
+        fields = [("Under Construction!", "Economy is currently being polished and completely refactored.", False)]
 
         for name, value, inline in fields:
             page_3.add_field(name=name, value=value, inline=inline)
 
         page_4 = discord.Embed(
-            title="Games", 
-            description="Play with friends, compete with strangers, and make some extra coins all while having fun!", 
-            colour=await colours.colour(context)
-        )
-        fields = [("Under Construction!", "Games are currently being polished and completely refactored. ETA not known yet, be patient!", False)]
-
-        for name, value, inline in fields:
-            page_4.add_field(name=name, value=value, inline=inline)
-
-        page_5 = discord.Embed(
             title="Music",
             description="Listen to low-latency music streams for studying and hanging with friends in voice-chat!",
             colour=await colours.colour(context)
         )
-        fields = [("Commands", "`connect` connect bot to voice chat\n`play` <search song to play>\n`pause` pause player\n`resume` resume player\n`skip` skip current song\n`stop`\n`volume` change volume\n`shuffle` shuffle queue\n`equalizer` change equalizer\n`queue` see songs queue\n`current` see currently played song\n`swap` swap song\n`music` see music status\n`spotify` see spotify rich presence", False)]
+        fields = [("Commands", "/`connect` connect bot to voice chat\n/`play` <search song to play>\n/`pause` pause player\n/`resume` resume player\n/`skip` skip current song\n/`stop`\n/`volume` change volume\n/`shuffle` shuffle queue\n/`equalizer` change equalizer\n/`queue` see songs queue\n/`current` see currently played song\n/`swap` swap song\n/`music` see music status\n/`spotify` see spotify rich presence", False)]
 
         for name, value, inline in fields:
-            page_5.add_field(name=name, value=value, inline=inline)
+            page_4.add_field(name=name, value=value, inline=inline)
 
-        page_5.set_footer(
+        page_4.set_footer(
             text=f"Music is stable, but will be refactored to use new discord features and spotify integration, including playlists!"
         )
 
-        page_6 = discord.Embed(
+        page_5 = discord.Embed(
             title="Moderation", 
             description="Make sure your server is always under control, with an advanced toolset for your moderators, and auto-moderation for the tech-savvy!", 
             colour=await colours.colour(context)
@@ -167,9 +118,9 @@ class Commands(commands.Cog):
                 (f"`unban` <@member> <reason>", "Unbans mentioned member from server.", False)]
 
         for name, value, inline in fields:
-            page_6.add_field(name=name, value=value, inline=inline)
+            page_5.add_field(name=name, value=value, inline=inline)
 
-        page_6.set_footer(
+        page_5.set_footer(
             text="Is being refactored, as is most of the bot lol. Will be complete and shiny with ai moderation soon!"
         )
 
@@ -177,7 +128,7 @@ class Commands(commands.Cog):
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
         await message.add_reaction("❌")
-        pages = 6
+        pages = 5
         current_page = 1
 
         def check(reaction, user):
@@ -205,10 +156,6 @@ class Commands(commands.Cog):
                     elif current_page == 5:
                         await message.edit(embed=page_5)
                         await message.remove_reaction(reaction, user)
-
-                    elif current_page == 6:
-                        await message.edit(embed=page_6)
-                        await message.remove_reaction(reaction, user)
                 
                 if str(reaction.emoji) == "◀️" and current_page > 1:
                     current_page -= 1
@@ -229,10 +176,6 @@ class Commands(commands.Cog):
                         await message.edit(embed=page_4)
                         await message.remove_reaction(reaction, user)
 
-                    elif current_page == 5:
-                        await message.edit(embed=page_5)
-                        await message.remove_reaction(reaction, user)
-
                 if str(reaction.emoji) == "❌":
                     await message.delete()
                     break
@@ -244,488 +187,7 @@ class Commands(commands.Cog):
                 await message.delete()
                 break
 
-    #INFO
-    @cog_ext.cog_slash(
-        name="info",
-        description="See detailed information about me... wait may I ask why you need this info?",
-        guild_ids=guild_ids
-    )
-    async def info(self, context):
-        await log.cog_command(self, context)
-
-        before = time.monotonic()
-        before_ws = int(round(self.client.latency * 1000, 1))
-        ping = (time.monotonic() - before) * 1000
-        ram_usage = self.client.process.memory_full_info().rss / 1024**2
-        current_time = time.time()
-        difference = int(round(current_time - self.client.start_time))
-        uptime = str(timedelta(seconds=difference))
-        users = len(self.client.users)
-
-        info = discord.Embed(
-        title="Bot Info",
-        description="Everything about me!",
-        colour=0x9b59b6
-        )
-        info.set_thumbnail(
-            url=context.bot.user.avatar_url
-        )
-        fields = [("Developer", "Timmy", True), 
-                ("Users", f"{users}", True),
-                ("Latency", f"{before_ws}ms", True),
-                ("RAM Usage", f"{ram_usage:.2f} MB", True), 
-                ("Uptime", uptime, True), 
-                ("Version", self.client.version, True)]
-
-        info.set_footer(
-            text="Latest changes: Fix levelling."
-        )
-
-        for name, value, inline in fields:
-            info.add_field(name=name, value=value, inline=inline)
-
-        await context.send(embed=info)
-
-    
-    #USER-INFO
-    @cog_ext.cog_slash(
-        name="user-info",
-        description="Gets user info and other handy information.",
-        guild_ids=guild_ids
-    )
-    async def userinfo(self, context: SlashContext, user: discord.Member=None):
-        await log.slash_command(self, context)
-
-        if isinstance(context.channel, discord.DMChannel):
-            return
-
-        if user is None:
-            user = context.author 
-
-        embed = discord.Embed(
-            colour=0x9b59b6
-        )
-        embed.set_author(
-            name=str(user), 
-            icon_url=user.avatar_url
-        )
-        
-        perm_string = ', '.join([str(p[0]).replace("_", " ").title() for p in user.guild_permissions if p[1]])
-        members = sorted(context.guild.members, key=lambda m: m.joined_at)
-        date_format = "%a, %d %b %Y at %I:%M %p"
-
-        top_role = user.top_role
-        
-        fields = [("Joined this server at", user.joined_at.strftime(date_format), True),
-                  ("Registered this account at", user.created_at.strftime(date_format), False),
-                  ("Server join position", str(members.index(user)+1), True),
-                  ("Roles [{}]".format(len(user.roles)-1), top_role.mention, True)]
-        
-        for name, value, inline in fields:
-            embed.add_field(name=name, value=value, inline=inline)
-
-        embed.set_footer(
-            text="ID: " + str(user.id)
-        )
-        await context.send(embed=embed)
-
-    #SERVER-INFO
-    @cog_ext.cog_slash(
-        name="server-info",
-        description="Gets server info and other handy information.",
-        guild_ids=guild_ids
-    )
-    async def serverinfo(self, context: SlashContext):
-        await log.slash_command(self, context)
-
-        embed = discord.Embed(
-        title="Server Info",
-        colour=0x9b59b6
-        )
-        embed.set_thumbnail(
-            url=context.guild.icon_url
-        )
-
-        fields = [("Owner", context.guild.owner, False),
-                  ("Created At", context.guild.created_at.strftime("%d/%m/%Y %H:%M:%S"), True),
-                  ("Region", context.guild.region, False),
-                  ("Members", len(context.guild.members), False)]
-
-        for name, value, inline in fields:
-                embed.add_field(name=name, value=value, inline=inline)
-
-        embed.set_footer(
-            text=f"ID: {context.guild.id}"
-        )
-
-        await context.send(embed=embed)
-
-
-    #LEADERBOARD
-    @cog_ext.cog_slash(
-        name="leaderboard",
-        description="Gets the top 10 ranked users in the server, or if you really want to scroll...",
-        guild_ids=guild_ids
-    )
-    async def leaderboard(self, context: SlashContext):
-        await log.slash_command(self, context)
-        records = (await db.records("SELECT UserID, XP FROM users ORDER BY XP DESC"))
-        menu = MenuPages(source=Menu(context, records), clear_reactions_after=True, timeout=100.0)
-        await menu.start(context)
-        #fix this command with the whole interaction failed thing and add a way to get the top 10 users by whatever a user wants, not just exp
-
-
-    #COLORTHEME
-    @cog_ext.cog_slash(
-        name="colortheme", 
-        description="Per-user color customizability!", 
-        guild_ids=guild_ids,
-        options=[
-            create_option(
-                name="colortheme",
-                description="Change my color theme!",
-                required=False,
-                option_type=3,
-                choices=[
-                    create_choice(
-                        name="black",
-                        value="black,0"
-                    ),
-                    create_choice(
-                        name="teal",
-                        value="teal,0x1abc9c"
-                    ),
-                    create_choice(
-                        name="dark teal",
-                        value="dark teal,0x11806a"
-                    ),
-                    create_choice(
-                        name="green",
-                        value="green,0x2ecc71"
-                    ),
-                    create_choice(
-                        name="dark green",
-                        value="dark green,0x1f8b4c"
-                    ),
-                    create_choice(
-                        name="blue",
-                        value="blue,0x3498db"
-                    ),
-                    create_choice(
-                        name="dark blue",
-                        value="dark blue,0x206694"
-                    ),
-                    create_choice(
-                        name="purple",
-                        value="purple,0x9b59b6"
-                    ),
-                    create_choice(
-                        name="dark purple",
-                        value="dark purple,0x71368a"
-                    ),
-                    create_choice(
-                        name="magenta",
-                        value="magenta,0xe91e63"
-                    ),
-                    create_choice(
-                        name="dark magenta",
-                        value="dark magenta,0xad1457"
-                    ),
-                    create_choice(
-                        name="gold",
-                        value="gold,0xf1c40f"
-                    ),
-                    create_choice(
-                        name="dark gold",
-                        value="dark gold,0xc27c0e"
-                    ),
-                    create_choice(
-                        name="orange",
-                        value="orange,0xe67e22"
-                    ),
-                    create_choice(
-                        name="dark orange",
-                        value="dark orange,0xa84300"
-                    ),
-                    create_choice(
-                        name="red",
-                        value="red,0xe74c3c"
-                    ),
-                    create_choice(
-                        name="dark red",
-                        value="dark red,0x992d22"
-                    ),
-                    create_choice(
-                        name="lighter grey",
-                        value="lighter grey,0x95a5a6s"
-                    ),
-                    create_choice(
-                        name="light grey",
-                        value="light grey,0x979c9f"
-                    ),
-                    create_choice(
-                        name="dark grey",
-                        value="dark grey,0x607d8b"
-                    ),
-                    create_choice(
-                        name="darker grey",
-                        value="darker grey,0x546e7a"
-                    ),
-                    create_choice(
-                        name="greyple",
-                        value="greyple,0x99aab5"
-                    ),
-                    create_choice(
-                        name="blurple",
-                        value="blurple,0x7289da"
-                    )
-
-                ]
-    
-            )
-        ],
-        connector={
-            "colortheme": "colortheme"
-        }
-    )
-
-    async def settings(self, context: SlashContext, colortheme: str):
-        await log.slash_command(self, context)
-        if colortheme:
-            #add rainbow and custom colorthemes as purchases in economy later!
-            color, value = colortheme.split(",")
-            await colours.change_colour(context, value)
-            embed = discord.Embed(colour=await colours.colour(context))
-            embed.add_field(
-                name="Color Theme",
-                value=f"Color theme changed to `{color}`",
-                inline=True
-            )
-            await context.send(embed=embed)
-        
-        else:
-            return
-
-    #RANK
-    @cog_ext.cog_slash(
-        name="rank",
-        description="Displays a member's level, rank, and karma in a cooool way!",
-        guild_ids=guild_ids
-    )
-    async def rank(self, context: SlashContext, target: discord.Member=None):
-        await log.slash_command(self, context)
-        target = target or context.author
-        if target is not None:
-            exp, level = (await db.record(f"SELECT XP, Level FROM users WHERE (guildID, UserID) = (?, ?)",
-                target.guild.id,
-                target.id
-            ))
-            ids = (await db.column(f"SELECT UserID FROM users WHERE GuildID = {target.guild.id} ORDER BY XP DESC"))
-            message_count = (await db.record(f"SELECT GlobalMessageCount FROM users WHERE UserID = {target.id} and GuildID = {target.guild.id}"))[0]
-
-
-        if exp or level is not None:
-            rank = f"{ids.index(target.id)+1}"
-            xp = exp
-            user_name = str(target.nick or target.display_name)
-            discriminator = f"#{target.discriminator}"
-
-            next_level, final_xp = await levels.next_level_details(level)
-            level = await levels.find_level(xp)
-            
-            rank_background = (await db.record(f"SELECT RankBackground FROM usersettings WHERE UserID = {target.id}"))[0]
-
-            if rank_background == "None":
-                background = Image.new("RGB", (1000, 240))
-
-            else:
-                with Image.open(rank_background, "r") as f:
-                    background = f.convert("RGB")
-                
-    
-            async with aiohttp.ClientSession() as session:
-                async with session.get(str(target.avatar_url)) as response:
-                    image = await response.read()
-                    icon = Image.open(BytesIO(image)).convert("RGBA").resize((200, 200))
-                    bigsize = (icon.size[0] * 3, icon.size[1] * 3)
-                    mask = Image.new("L", bigsize, 0)
-                    draw = ImageDraw.Draw(mask)
-                    # draw.ellipse((0, 0) + bigsize, 255)
-                    draw.polygon(xy=[(0, 0), (0, bigsize[1]), (bigsize[0], bigsize[1]), (bigsize[0], 0)], fill=255)
-
-                    mask = mask.resize(icon.size, Image.ANTIALIAS)
-                    icon.putalpha(mask)
-                    background.paste(icon, (20, 20), mask=icon)
-                    draw = ImageDraw.Draw(background, "RGB")
-                    big_font = ImageFont.FreeTypeFont("./data/fonts/ABeeZee-Regular.otf", 60, encoding="utf-8")
-                    medium_font = ImageFont.FreeTypeFont("./data/fonts/ABeeZee-Regular.otf", 40, encoding="utf-8")
-                    small_font = ImageFont.FreeTypeFont("./data/fonts/ABeeZee-Regular.otf", 30, encoding="utf-8")
-
-                    text_size = draw.textsize(str(level), font=big_font)
-                    offset_x = 1000 - 15 - text_size[0]
-                    offset_y = 10
-                    draw.text((offset_x, offset_y), str(level), font=big_font, fill=await colours.colour_hex(context, target))
-                    text_size = draw.textsize("LEVEL", font=small_font)
-                    offset_x -= text_size[0] + 5
-                    draw.text((offset_x, offset_y + 27), "LEVEL", font=small_font, fill="#fff")
-
-                    text_size = draw.textsize(f"#{rank}", font=big_font)
-                    offset_x -= text_size[0] + 15
-                    draw.text((offset_x, offset_y), f"{rank}", font=big_font, fill=await colours.colour_hex(context, target))
-                    text_size = draw.textsize("RANK", font=small_font)
-                    offset_x -= text_size[0] + 5
-                    draw.text((offset_x, offset_y + 27), "RANK", font=small_font, fill="#fff")
-                    
-                    text_size = draw.textsize(f"{message_count}", font=big_font)
-                    offset_x -= text_size[0] + 50
-                    draw.text((offset_x, offset_y), f"{message_count}", font=big_font, fill=await colours.colour_hex(context, target))
-                    text_size = draw.textsize("KARMA", font=small_font)
-                    offset_x -= text_size[0] + 10
-                    draw.text((offset_x, offset_y + 27), "KARMA", font=small_font, fill="#fff")
-
-                    bar_offset_x = 320
-                    bar_offset_y = 160
-                    bar_offset_x_1 = 950
-                    bar_offset_y_1 = 200
-                    circle_size = bar_offset_y_1 - bar_offset_y
-                    draw.rectangle((bar_offset_x, bar_offset_y, bar_offset_x_1, bar_offset_y_1), fill="#727175")
-                    draw.ellipse(
-                        (bar_offset_x - circle_size // 2, bar_offset_y, bar_offset_x + circle_size // 2, bar_offset_y_1), fill=await colours.colour_hex(context, target)
-                    )
-                    draw.ellipse(
-                        (bar_offset_x_1 - circle_size // 2, bar_offset_y, bar_offset_x_1 + circle_size // 2, bar_offset_y_1), fill="#727175"
-                    )
-                    bar_length = bar_offset_x_1 - bar_offset_x
-                    progress = (final_xp - xp) * 100 / final_xp
-                    progress = 100 - progress
-                    progress_bar_length = round(bar_length * progress / 100)
-                    bar_offset_x_1 = bar_offset_x + progress_bar_length
-                    draw.rectangle((bar_offset_x, bar_offset_y, bar_offset_x_1, bar_offset_y_1), fill=await colours.colour_hex(context, target))
-                    draw.ellipse(
-                        (bar_offset_x - circle_size // 2, bar_offset_y, bar_offset_x + circle_size // 2, bar_offset_y_1), fill=await colours.colour_hex(context, target)
-                    )
-                    draw.ellipse(
-                        (bar_offset_x_1 - circle_size // 2, bar_offset_y, bar_offset_x_1 + circle_size // 2, bar_offset_y_1), fill=await colours.colour_hex(context, target)
-                    )
-                    text_size = draw.textsize(f"/ {final_xp} XP", font=small_font)
-                    offset_x = 950 - text_size[0]
-                    offset_y = bar_offset_y - text_size[1] - 10
-                    draw.text((offset_x, offset_y), f"/ {final_xp:,} XP", font=small_font, fill="#727175")
-                    text_size = draw.textsize(f"{xp:,}", font=small_font)
-                    offset_x -= text_size[0] + 8
-                    draw.text((offset_x, offset_y), f"{xp:,}", font=small_font, fill="#fff")
-                    text_size = draw.textsize(user_name, font=medium_font)
-                    offset_x = bar_offset_x
-                    offset_y = bar_offset_y - text_size[1] - 5
-                    draw.text((offset_x, offset_y), user_name, font=medium_font, fill="#fff")
-                    offset_x += text_size[0] + 5
-                    offset_y += 10
-                    draw.text((offset_x, offset_y), discriminator, font=small_font, fill="#727175")
-                    background.show()
-
-                    background.save("./data/img/imgswap.png")
-                    ffile = discord.File("./data/img/imgswap.png")
-                    await context.send(file=ffile)
-                       
-        else:
-            await context.send("You are not in the database :(\nDon't worry though, you were just added! Try running the command again.", mention_author=False)
-
-    #test rank_background
-    @commands.command()
-    @commands.check(checks.is_owner)
-    async def rb(self, context, arg, target: Optional[Member]):
-        target = target or context.author
-
-        await db.execute(f"UPDATE usersettings SET RankBackground = ? WHERE UserID = ?",
-            arg,
-            target.id
-        )
-
-    @commands.command(aliases=["atm"])
-    @commands.check(checks.is_owner)
-    async def add_to_market(self, context, name, category, quantity, price):
-        embed = discord.Embed(colour=await colours.colour(context))
-
-        await db.execute(f"INSERT INTO globalmarket (ItemName, Category, QuantityAvailable, QuantityLimit, Price) VALUES (?, ?, ?, ?, ?)", 
-            name, 
-            category, 
-            quantity, 
-            quantity,
-            price
-        )
-        await db.commit()
-         
-        fields = [("`Market`", f"New item added by {context.author.name}", True),
-                  ("`Name`", name, False),
-                  ("`category`", category, True),
-                  ("`quantity`", quantity, True),
-                  ("`price`", f":coin: {price}", True)]
-
-        for name, value, inline in fields:
-            embed.add_field(name=name, value=value, inline=inline)
-
-        await context.reply(embed=embed, mention_author=False)
-
-    #TICKETS
-    @cog_ext.cog_slash(
-        name="ticket",
-        description="Send an request to become a @project maintainer",
-        guild_ids=guild_ids,
-        options=[
-            create_option(
-                name="name",
-                description="What is the name of the project you would like to share?",
-                required=True,
-                option_type=3
-            ),
-            create_option(
-                name="description",
-                description="What is the description of the project you would like to share?",
-                required=True,
-                option_type=3
-            )
-        ]
-    )
-    async def ticket(self, context: SlashContext, name: str, description: str):
-        await log.slash_command(self, context)
-        await db.execute(f"INSERT INTO tickets (UserID, ProjectName, ProjectDescription) VALUES (?, ?, ?)",
-            context.author.id,
-            name,
-            description
-        )
-        await db.commit()
-
-        await context.send("Your ticket has been sent! You will be notified when an admin responds to your ticket.")
-
-        embed = discord.Embed(colour=await colours.colour(context))
-        embed.add_field(name=f"Ticket for a project", value=f"**Name:** `{name}`\n**Description:**\n{description}", inline=False)
-        embed.set_author(name=f"Requested by: {context.author.name}", icon_url=context.author.avatar_url)
-        embed.set_footer(text=f"Vote if this project will become a part of the DevelopingThings watchlist.")
-        
-        admins = self.client.get_channel(863918584366104627)
-
-        message = await admins.send(embed=embed)
-        await message.add_reaction("✔️")
-        await message.add_reaction("❌")
-
-        def check(reaction, user):
-            return user in config["owner_ids"] and str(reaction.emoji) in ["✔️", "❌"]
-
-        while True:
-            try:
-                reaction, user = await context.bot.wait_for("reaction_add", timeout=60, check=check)
-
-                if str(reaction.emoji) == "✔️":
-                    pass
-
-                if str(reaction.emoji) == "❌":
-                    pass
-
-                else:
-                    await message.remove_reaction(reaction, user)
-
-            except asyncio.TimeoutError:
-                break
+   
         
 def setup(client):
     client.add_cog(Commands(client))

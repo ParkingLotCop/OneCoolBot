@@ -18,7 +18,7 @@ import random
 
 with open("config.json") as file:
     config = json.load(file)
-    devthings = config["devthings"]
+    emperorsmp = config["emperorsmp"]
 
 LEVELS_AND_XP = {
     "0": 0,
@@ -127,57 +127,57 @@ LEVELS_AND_XP = {
 MAX_XP = LEVELS_AND_XP["100"]
 MAX_LEVEL = 100
 
-async def level_up_process(self, message, new_lvl):
-    role, coins = (await db.record(f"SELECT LevelRoleID, LevelCoins FROM guildsettings WHERE GuildID = ? AND RoleLevel = ?",
-        message.guild.id,
-        new_lvl
-    ))
-    role_id = message.guild.get_role(role)
-    await message.author.add_roles(role_id)
-    await log.add_role(self, message, role_id)
+# async def level_up_process(self, message, new_lvl):
+#     role, coins = (await db.record(f"SELECT LevelRoleID, LevelCoins FROM guildsettings WHERE GuildID = ? AND RoleLevel = ?",
+#         message.guild.id,
+#         new_lvl
+#     ))
+#     role_id = message.guild.get_role(role)
+#     await message.author.add_roles(role_id)
+#     await log.add_role(self, message, role_id)
 
-    await db.execute("UPDATE users SET Coins = Coins + ? WHERE UserID = ?",
-        coins,
-        message.author.id
-    )
-    await db.commit()
-    await log.coin_add(self, message, coins)
+#     await db.execute("UPDATE users SET Coins = Coins + ? WHERE UserID = ?",
+#         coins,
+#         message.author.id
+#     )
+#     await db.commit()
+#     await log.coin_add(self, message, coins)
 
 async def level_up(self, message, new_lvl):
     async with message.channel.typing():
         await log.level_up(self, message, new_lvl)
 
-        if message.guild.id in config["devthings"]:
-            if new_lvl == 5:
-                await level_up_process(self, message, new_lvl)
+        # if message.guild.id in config["devthings"]:
+        #     if new_lvl == 5:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 10:
-                await level_up_process(self, message, new_lvl)
+        #     if new_lvl == 10:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 20:
-                await level_up_process(self, message, new_lvl)
+        #     if new_lvl == 20:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 30:
-                await level_up_process(self, message, new_lvl)
+        #     if new_lvl == 30:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 40:
-                await level_up_process(self, message, new_lvl)
+        #     if new_lvl == 40:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 50:
-                await level_up_process(self, message, new_lvl)
+        #     if new_lvl == 50:
+        #         await level_up_process(self, message, new_lvl)
 
-            if new_lvl == 75:
-                await level_up_process(self, message, new_lvl)
-                #make sure this is one user with most exp!
+        #     if new_lvl == 75:
+        #         await level_up_process(self, message, new_lvl)
+        #         #make sure this is one user with most exp!
 
-        else:
-            coins = random.randint(10, 1000)
+        # else:
+        coins = random.randint(10, 1000)
 
-            await db.execute("UPDATE users SET Coins = Coins + ? WHERE UserID = ?",
-                coins,
-                message.author.id
-            )
-            await db.commit()
+        await db.execute("UPDATE users SET Coins = Coins + ? WHERE UserID = ?",
+            coins,
+            message.author.id
+        )
+        await db.commit()
 
 async def next_level_details(current_level: int) -> tuple:
     temp = current_level + 1
