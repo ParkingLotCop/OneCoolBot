@@ -1,6 +1,7 @@
 /data/logs
 __pycache__/
 /data/img/imgswap.png
+/data/img/bkgrndswap.png
 .env
 /venv
 .vscode/*
