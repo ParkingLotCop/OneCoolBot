@@ -27,6 +27,7 @@ import aiohttp
 from typing import Optional
 from io import BytesIO
 import random
+from mcstatus import MinecraftServer
 
 guild_ids = [869061881250324531]
 
@@ -72,10 +73,10 @@ class Commands(commands.Cog):
             description="The overview of the general commands.", 
             colour=await colours.colour(context)
         )
-        fields = [("/`info`", "Displays bot status, ping, and other miscellaneous content.", False),
-                  ("/`serverinfo`", "Displays server info, such as user count.", False),
-                  ("/`userinfo`", "Displays user info, discord stats, and the like.", False),
-                  ("/`minecraft-server-info`", "Displays minecrft server info, such as uptime and users playing.\nNot added yet! Working on it.", False),]
+        fields = [("**/**`info`", "Displays bot status, ping, and other miscellaneous content.", False),
+                  ("**/**`serverinfo`", "Displays server info, such as user count.", False),
+                  ("**/**`userinfo`", "Displays user info, discord stats, and the like.", False),
+                  ("**/**`minecraft-server-info`", "Displays minecrft server info, such as uptime and users playing.\nNot added yet! Working on it.", False),]
 
         page_2.set_footer(
             text=f"Handy tip! To see what a command can do, try it and see!"
@@ -435,6 +436,34 @@ class Commands(commands.Cog):
                        
         else:
             await context.send("You are not in the database :(\nDon't worry though, you were just added! Try running the command again.", mention_author=False)
+
+    #MINECRAFT_SERVER_INFO
+    @cog_ext.cog_slash(
+        name="minecraft-server-info",
+        description="Get information about the EmperorSMP server.",
+        guild_ids=guild_ids,
+    )
+    async def minecraft_server_info(self, context: SlashContext):
+        server = MinecraftServer.lookup("2b2t.org")
+        status = server.status()
+        online = status.players.online
+        max_players = status.players.max
+        version = status.version.name
+        # latency = server.ping()
+
+        embed = discord.Embed(
+            title="EmperorSMP Server Info",
+            colour=await colours.colour(context),
+        )
+        fields = [("Server Status", "<:mcaccept:869373630621048883> online", False),
+                  ("Players", f"<:enderpearl:869371839955206214> {online}/{max_players}", False),
+                  ("Version", f"<:commandblock:869372628031381636> {version}", False)]
+
+        for name, value, inline in fields:
+            embed.add_field(name=name, value=value, inline=inline)
+
+        await context.send(embed=embed)
+
 
 def setup(client):
     client.add_cog(Commands(client))
