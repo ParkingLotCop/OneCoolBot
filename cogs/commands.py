@@ -464,6 +464,16 @@ class Commands(commands.Cog):
 
         await context.send(embed=embed)
 
+    #VOTE
+    @cog_ext.cog_slash(
+        name="vote",
+        description="Help EmperorSMP spread the word!",
+        guild_ids=guild_ids,
+    )
+    async def vote(self, context: SlashContext):
+        await context.send("Insert vote link here")
+
+
 
 def setup(client):
     client.add_cog(Commands(client))
